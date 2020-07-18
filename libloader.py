@@ -271,7 +271,7 @@ def main():
         if choice in ['Y', 'y']:
             sizeinbytes = int(size.split('(')[1].rstrip(')'))
             print('\nDownloading: {} \n'.format(name + '.' + extension))
-            dlr.downloadFile(bookurl, sizeinbytes, 'C:\\Users\\KAZ\\Desktop\\', name, extension, barstyle='BAR')
+            dlr.downloadFile(bookurl, sizeinbytes, 'C:\\Users\\USER\\Desktop\\', name, extension, barstyle='BAR')
             ringBell()
         else:
             continue

@@ -19,7 +19,7 @@ def downloadFile(flurl: str,size: int,path: str,nm: str,ext: str,numoftrls=10,ba
 	
 	for attempt in range(numoftrls):
 		try:
-			fl = requests.get(flurl,stream = True,timeout = 5.0) 
+			fl = requests.get(flurl,stream = True) 
 			if fl:
 				with open(path+flnm,'wb') as pdf:
 					num_chunks = 0	

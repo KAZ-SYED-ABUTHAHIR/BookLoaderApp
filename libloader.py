@@ -44,7 +44,7 @@ def renderCoverImage(url: str = None) -> None:
 		Func to display the cover image.The task of displaying the image from the url is delegated to 
 		the processing micro app through the file
 	"""
-    # coverURL.txt path: 'C:\Users\KAZ\Desktop\ShowURLImage\data\'' Have to be replaced with the relative path.
+
     if not url:
         return None
     try:
@@ -70,6 +70,10 @@ def exitCoverRenderer() -> None:
     except Exception as e:
         print(e)
 
+# ---------------------------------------------Function to get user base path attached to a dir name-------------
+def getUserBasePath(appendPath = ''):
+    return os.path.expanduser('~') + "\\" + appendPath + "\\"
+    
 
 # -----------------------------------------------------------------------------------------------------------------------------------------------#
 def getSoup(url: str, ftrs: str = "html5lib") -> bsp:
@@ -96,9 +100,9 @@ def searchSoup(search: str, page='1', view='detailed', column='def', sortby='yea
 	"""
     searchStr = search.strip().replace(' ', '+')
     urlString = 'http://93.174.95.27/search.php?&req={}&phrase=1&view={}&column={}&sort={}&sortmode={}&page={}'.format(
-        search, view, column, sortby, sortmode, page)
+        searchStr, view, column, sortby, sortmode, page)
     soup = None
-    MAX_NUM_TRYS = 15;
+    MAX_NUM_TRYS = 15
     i = 0
     while (soup is None):
         try:
@@ -117,7 +121,7 @@ def catchErr(fun, *args, **kwargs):
     """Function to catch RTErrs raised from list comprehensions"""
     try:
         return fun(*args, **kwargs)
-    except Exception as e:
+    except:
         return None
 
 
@@ -160,7 +164,7 @@ def getPageJuice(search='None', pageNum='1') -> List[Dict]:
 
     pgnums = [pg.findNextSiblings()[0].text for pg in soup.findAll('td', text='Pages:')]
 
-    FILE_SIZE = 0;
+    FILE_SIZE = 0
     EXTENSION = 1
 
     """
@@ -271,7 +275,7 @@ def main():
         if choice in ['Y', 'y']:
             sizeinbytes = int(size.split('(')[1].rstrip(')'))
             print('\nDownloading: {} \n'.format(name + '.' + extension))
-            dlr.downloadFile(bookurl, sizeinbytes, 'C:\\Users\\USER\\Desktop\\', name, extension, barstyle='BAR')
+            dlr.downloadFile(bookurl, sizeinbytes, getUserBasePath(appendPath='Desktop'), name, extension, barstyle='BAR')
             ringBell()
         else:
             continue

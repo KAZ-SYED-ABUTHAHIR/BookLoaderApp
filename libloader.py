@@ -7,16 +7,15 @@ __author__ = "NOBODY"
 __copyright__ = "NOBODY"
 
 import downloader as dlr  # local module
+import soupipy
+
 import os, sys, time, winsound
-
-
 import pyperclip as clip
 import requests
 from bs4 import BeautifulSoup as bsp
 from typing import List, Dict, Tuple
 
-
-# -----------------------------------------------------System Bell Sound-------------------------------------------------------------------------#
+# ------------------------------------------------System & PC Bell Sound--------------------------------------------------------#
 def ringBell(bell='BEEP') -> None:
     """ Function to ring the system bell '\a' is the escape sequence for the bell"""
     if bell == 'BEEP':
@@ -54,9 +53,8 @@ def renderCoverImage(url: str = None) -> None:
         print(e)
         return None
 
+
     # ---------------------------------------------------------------------------------------------------------------------------------------#
-
-
 def exitCoverRenderer() -> None:
     try:
         with open(r"bin\data\commands.txt", "w") as txtfl:
@@ -70,29 +68,11 @@ def exitCoverRenderer() -> None:
     except Exception as e:
         print(e)
 
+
 # ---------------------------------------------Function to get user base path attached to a dir name-------------
 def getUserBasePath(appendPath = ''):
     return os.path.expanduser('~') + "\\" + appendPath + "\\"
     
-
-# -----------------------------------------------------------------------------------------------------------------------------------------------#
-def getSoup(url: str, ftrs: str = "html5lib") -> bsp:
-    """
-	Function to extract soup from the url passed in, returns a bsp object.
-	"""
-    rspns = requests.get(url)
-    return bsp(rspns.content, ftrs)
-
-
-# ----------------------------------------------------------------------------------------------------------------------------------------------#
-def getSoups(urls: list, ftrs: str = "html5lib") -> list:
-    """
-		Function to extract soups from the list of urls passed in, returns a list of bsp objects.
-	"""
-    rspnss = [getSoup(url, ftrs) for url in urls]
-    return rspnss
-
-
 # -----------------------------------------------------------------------------------------------------------------------------------------------#
 def searchSoup(search: str, page='1', view='detailed', column='def', sortby='year', sortmode='DESC') -> bsp:
     """
@@ -106,7 +86,7 @@ def searchSoup(search: str, page='1', view='detailed', column='def', sortby='yea
     i = 0
     while (soup is None):
         try:
-            soup = getSoup(urlString)
+            soup = soupipy.getSoup(urlString)
             i += 1
             # print('\rTrying {}'.format(i),end='')
             if i > MAX_NUM_TRYS:
@@ -126,8 +106,6 @@ def catchErr(fun, *args, **kwargs):
 
 
 # -----------------------------------------------------------------------------------------------------------------------------------------------#
-
-
 # --------------------------------------------------Main Function-------------------------------------------------------------------------------#
 def main():
     # Auxiliary Function To Extract Juice From A Book Search Page
@@ -142,7 +120,7 @@ def main():
             imgs = soup.findAll('img')
             srcs = [img['src'] for img in imgs]
             refstobookget = ['http://93.174.95.29/main/' + img.parent['href'].split('=', 1)[1] for img in imgs]
-            bkldpgsoups = getSoups(refstobookget)
+            bkldpgsoups = soupipy.getSoups(refstobookget)
             loaderURIs = [bkldpgsoup.findAll('a', text='GET')[:][0]['href'] for bkldpgsoup in bkldpgsoups]
         except Exception as e:
             print(e)
@@ -157,7 +135,7 @@ def main():
         bibtexjsonsresultset = soup.findAll('a', text='Link')
         bibtexjsons = ['http://93.174.95.27' + bibtexjson['href'] for bibtexjson in bibtexjsonsresultset]
 
-        bibtexjsonsoups = getSoups(bibtexjsons)
+        bibtexjsonsoups = soupipy.getSoups(bibtexjsons)
         bibtexjsonsoupsnuts = [bibtexjsonsoup.textarea.text.split('\n', 1)[1:][-1][:-1] for bibtexjsonsoup in
                                bibtexjsonsoups]
 
@@ -217,7 +195,7 @@ def main():
             dictRecord['Book URL'] = loaderURIs[i]
             pageJuice.append(dictRecord)
 
-        spdlinksoups = [getSoup(spdlnkget['URL'].replace('http://gen.lib.rus.ec/book/index', 'https://libgen.lc/ads')) for
+        spdlinksoups = [soupipy.getSoup(spdlnkget['URL'].replace('http://gen.lib.rus.ec/book/index', 'https://libgen.lc/ads')) for
                         spdlnkget in pageJuice]
         bookdscrns = [str(spdlinksoup).split('<td colspan="2">')[-1].split('</td>')[0].replace('<br/>', ' ') + '\n' for
                       spdlinksoup in spdlinksoups]
@@ -232,7 +210,6 @@ def main():
              
 
         return pageJuice, NUM_RECORDS
-
 
 
     startCoverRenderer()
@@ -275,11 +252,11 @@ def main():
 
         clip.copy(author) # Author name is copied to the system clipboard 
 
-        choice = input('Y/N :')
+        choice = input('Y/N : ')
         if choice in ['Y', 'y']:
             sizeinbytes = int(size.split('(')[1].rstrip(')'))
             print('\nDownloading: {} \n'.format(name + '.' + extension))
-            dlr.downloadFile(bookurl, sizeinbytes, getUserBasePath(appendPath='Desktop'), name, extension, barstyle='BAR')
+            dlr.downloadFile(bookurl, sizeinbytes, getUserBasePath(appendPath='Desktop'), name, extension, barStyle='BAR')
             ringBell()
         else:
             continue

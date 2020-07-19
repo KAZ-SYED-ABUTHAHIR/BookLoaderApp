@@ -1,1 +1,5 @@
+<<<<<<< HEAD
 http://93.174.95.27/covers/2202000/b06f844f416aaee94a19dca4730d66bb-d.jpg
+=======
+http://93.174.95.27/covers/1526000/ac714f29662f2cc5cba3e8480383595c-d.jpg
+>>>>>>> e5bdbea5a4a7bca38eb659099812e0c53b78bbf7

@@ -40,7 +40,7 @@ def downloadFile(flurl: str,size: int,path: str,nm: str,ext: str,numoftrls=10,ba
 								print('\r',end='\r')
 						elif barstyle == 'BAR_CHUNKS':
 							print('X',end='') 
-		except Timeout:
+		except:
 			print('Connection Timed out.')					
 			print('\rError in connection during downlaoding {}. Retrying...{}'.format(flnm,attempt))
 			continue

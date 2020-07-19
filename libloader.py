@@ -9,7 +9,7 @@ __copyright__ = "NOBODY"
 import downloader as dlr  # local module
 import os, sys, time, winsound
 
-#import subprocess as sp
+
 import pyperclip as clip
 import requests
 from bs4 import BeautifulSoup as bsp
@@ -126,111 +126,115 @@ def catchErr(fun, *args, **kwargs):
 
 
 # -----------------------------------------------------------------------------------------------------------------------------------------------#
-def getPageJuice(search='None', pageNum='1') -> List[Dict]:
-    """
-	Extract Page Details for the page <pageNum> corresponding to the search string <search> and
-	returns the extracted details for each book as a list of dictionaries
-	"""
-    soup = searchSoup(search, pageNum)
-
-    try:
-        imgs = soup.findAll('img')
-        srcs = [img['src'] for img in imgs]
-        refstobookget = ['http://93.174.95.29/main/' + img.parent['href'].split('=', 1)[1] for img in imgs]
-        bkldpgsoups = getSoups(refstobookget)
-        loaderURIs = [bkldpgsoup.findAll('a', text='GET')[:][0]['href'] for bkldpgsoup in bkldpgsoups]
-    except Exception as e:
-        print(e)
-
-    NUM_RECORDS = len(loaderURIs)
-    print('{} Books Found.'.format(NUM_RECORDS))
-
-    NON_EXISTING = -1
-    imgsrcuris = ['http://93.174.95.27' + src if src.find('https') is NON_EXISTING else src.split('/covers/', 1)[1] for
-                  src in srcs]
-
-    bibtexjsonsresultset = soup.findAll('a', text='Link')
-    bibtexjsons = ['http://93.174.95.27' + bibtexjson['href'] for bibtexjson in bibtexjsonsresultset]
-
-    bibtexjsonsoups = getSoups(bibtexjsons)
-    bibtexjsonsoupsnuts = [bibtexjsonsoup.textarea.text.split('\n', 1)[1:][-1][:-1] for bibtexjsonsoup in
-                           bibtexjsonsoups]
-
-    sizes = soup.findAll('td', text='Size:')
-    FILE_SIZE = 0
-    EXTENSION = 2
-    sizesexts = [(size.findNextSiblings()[FILE_SIZE].text, size.findNextSiblings()[EXTENSION].text) for size in
-                 sizes]  # Extracting sizes and extensions
-
-    pgnums = [pg.findNextSiblings()[0].text for pg in soup.findAll('td', text='Pages:')]
-
-    FILE_SIZE = 0
-    EXTENSION = 1
-
-    """
-	"""
-    bibtexjsonsoupsnuts = [('   ' + bibtexjsonsoupsnut.strip() +
-                            ',\n   size =      {},\n   extension = {},\n   pages =     {}'.
-                            format('{' + sizesexts[i][FILE_SIZE] + '}', '{' + sizesexts[i][EXTENSION] + '}',
-                                   '{' + pgnums[i]) + '}').split(',') \
-                           for i, bibtexjsonsoupsnut in enumerate(bibtexjsonsoupsnuts)]
-    """
-	"""
-    bibtexjsonsoupsnuts = [''.join(bibtexjsonsoupsnut).replace('=', '', 1) for bibtexjsonsoupsnut in bibtexjsonsoupsnuts]
-
-    pageJuice = []
-
-    TITLE = 0
-    AUTHOR = 1
-    PUBLISHER = 2
-    ISBN = 3
-    YEAR = 4
-    SERIES = 5
-    EDITION = 6
-    VOLUME = 7
-    URL = 8
-    SIZE = 9
-    EXTENSION = 10
-    PAGES = 11
-
-    for i, bibtexjsonsoupsnut in enumerate(bibtexjsonsoupsnuts):
-        record = [element[element.index('{') + 1:].strip('}') for element in bibtexjsonsoupsnut.split('\n')]
-        dictRecord = {}
-        dictRecord['Title'] = record[TITLE]
-        dictRecord['Author'] = record[AUTHOR]
-        dictRecord['Pubisher'] = record[PUBLISHER]
-        dictRecord['ISBN'] = record[ISBN]
-        dictRecord['Year'] = record[YEAR]
-        dictRecord['Series'] = record[SERIES]
-        dictRecord['Edition'] = record[EDITION]
-        dictRecord['Volume'] = record[VOLUME]
-        dictRecord['URL'] = record[URL]
-        dictRecord['Size'] = record[SIZE]
-        dictRecord['Extension'] = record[EXTENSION]
-        dictRecord['Pages'] = record[PAGES]
-        dictRecord['Image URL'] = imgsrcuris[i]
-        dictRecord['Book URL'] = loaderURIs[i]
-        pageJuice.append(dictRecord)
-
-    spdlinksoups = [getSoup(spdlnkget['URL'].replace('http://gen.lib.rus.ec/book/index', 'https://libgen.lc/ads')) for
-                    spdlnkget in pageJuice]
-    bookdscrns = [str(spdlinksoup).split('<td colspan="2">')[-1].split('</td>')[0].replace('<br/>', ' ') + '\n' for
-                  spdlinksoup in spdlinksoups]
-    bookdscrns = [bookdscrn if bookdscrn.find('<html/>') == -1 else 'Not Found' for
-                  bookdscrn in bookdscrns]
-
-    spdlnkgeturls = [catchErr(lambda: spdlinksoup.findAll('a', text='GET')[:][0]['href']) for spdlinksoup in
-                     spdlinksoups]
-
-    for pgJce, spdlnkgeturl, bookdscrn in zip(pageJuice, spdlnkgeturls, bookdscrns):
-        pgJce['Book URL(Faster)'], pgJce['Book Description'] = spdlnkgeturl, bookdscrn
-         
-
-    return pageJuice, NUM_RECORDS
 
 
 # --------------------------------------------------Main Function-------------------------------------------------------------------------------#
 def main():
+    # Auxiliary Function To Extract Juice From A Book Search Page
+    def getPageJuice(search='None', pageNum='1') -> List[Dict]:
+        """
+    	Extract Page Details for the page <pageNum> corresponding to the search string <search> and
+    	returns the extracted details for each book as a list of dictionaries
+    	"""
+        soup = searchSoup(search, pageNum)
+
+        try:
+            imgs = soup.findAll('img')
+            srcs = [img['src'] for img in imgs]
+            refstobookget = ['http://93.174.95.29/main/' + img.parent['href'].split('=', 1)[1] for img in imgs]
+            bkldpgsoups = getSoups(refstobookget)
+            loaderURIs = [bkldpgsoup.findAll('a', text='GET')[:][0]['href'] for bkldpgsoup in bkldpgsoups]
+        except Exception as e:
+            print(e)
+
+        NUM_RECORDS = len(loaderURIs)
+        print('{} Books Found.'.format(NUM_RECORDS))
+
+        NON_EXISTING = -1
+        imgsrcuris = ['http://93.174.95.27' + src if src.find('https') is NON_EXISTING else src.split('/covers/', 1)[1] for
+                      src in srcs]
+
+        bibtexjsonsresultset = soup.findAll('a', text='Link')
+        bibtexjsons = ['http://93.174.95.27' + bibtexjson['href'] for bibtexjson in bibtexjsonsresultset]
+
+        bibtexjsonsoups = getSoups(bibtexjsons)
+        bibtexjsonsoupsnuts = [bibtexjsonsoup.textarea.text.split('\n', 1)[1:][-1][:-1] for bibtexjsonsoup in
+                               bibtexjsonsoups]
+
+        sizes = soup.findAll('td', text='Size:')
+        FILE_SIZE = 0
+        EXTENSION = 2
+        sizesexts = [(size.findNextSiblings()[FILE_SIZE].text, size.findNextSiblings()[EXTENSION].text) for size in
+                     sizes]  # Extracting sizes and extensions
+
+        pgnums = [pg.findNextSiblings()[0].text for pg in soup.findAll('td', text='Pages:')]
+
+        FILE_SIZE = 0
+        EXTENSION = 1
+
+        """
+    	"""
+        bibtexjsonsoupsnuts = [('   ' + bibtexjsonsoupsnut.strip() +
+                                ',\n   size =      {},\n   extension = {},\n   pages =     {}'.
+                                format('{' + sizesexts[i][FILE_SIZE] + '}', '{' + sizesexts[i][EXTENSION] + '}',
+                                       '{' + pgnums[i]) + '}').split(',') \
+                               for i, bibtexjsonsoupsnut in enumerate(bibtexjsonsoupsnuts)]
+        """
+    	"""
+        bibtexjsonsoupsnuts = [''.join(bibtexjsonsoupsnut).replace('=', '', 1) for bibtexjsonsoupsnut in bibtexjsonsoupsnuts]
+
+        pageJuice = []
+
+        TITLE = 0
+        AUTHOR = 1
+        PUBLISHER = 2
+        ISBN = 3
+        YEAR = 4
+        SERIES = 5
+        EDITION = 6
+        VOLUME = 7
+        URL = 8
+        SIZE = 9
+        EXTENSION = 10
+        PAGES = 11
+
+        for i, bibtexjsonsoupsnut in enumerate(bibtexjsonsoupsnuts):
+            record = [element[element.index('{') + 1:].strip('}') for element in bibtexjsonsoupsnut.split('\n')]
+            dictRecord = {}
+            dictRecord['Title'] = record[TITLE]
+            dictRecord['Author'] = record[AUTHOR]
+            dictRecord['Pubisher'] = record[PUBLISHER]
+            dictRecord['ISBN'] = record[ISBN]
+            dictRecord['Year'] = record[YEAR]
+            dictRecord['Series'] = record[SERIES]
+            dictRecord['Edition'] = record[EDITION]
+            dictRecord['Volume'] = record[VOLUME]
+            dictRecord['URL'] = record[URL]
+            dictRecord['Size'] = record[SIZE]
+            dictRecord['Extension'] = record[EXTENSION]
+            dictRecord['Pages'] = record[PAGES]
+            dictRecord['Image URL'] = imgsrcuris[i]
+            dictRecord['Book URL'] = loaderURIs[i]
+            pageJuice.append(dictRecord)
+
+        spdlinksoups = [getSoup(spdlnkget['URL'].replace('http://gen.lib.rus.ec/book/index', 'https://libgen.lc/ads')) for
+                        spdlnkget in pageJuice]
+        bookdscrns = [str(spdlinksoup).split('<td colspan="2">')[-1].split('</td>')[0].replace('<br/>', ' ') + '\n' for
+                      spdlinksoup in spdlinksoups]
+        bookdscrns = [bookdscrn if bookdscrn.find('<html/>') == -1 else 'Not Found' for
+                      bookdscrn in bookdscrns]
+
+        spdlnkgeturls = [catchErr(lambda: spdlinksoup.findAll('a', text='GET')[:][0]['href']) for spdlinksoup in
+                         spdlinksoups]
+
+        for pgJce, spdlnkgeturl, bookdscrn in zip(pageJuice, spdlnkgeturls, bookdscrns):
+            pgJce['Book URL(Faster)'], pgJce['Book Description'] = spdlnkgeturl, bookdscrn
+             
+
+        return pageJuice, NUM_RECORDS
+
+
+
     startCoverRenderer()
 
     searchfor = input('What Do You Like To Search For?(Search By Title,Author,Pubisher,ISBN and Tags): ')

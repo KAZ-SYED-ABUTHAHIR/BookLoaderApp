@@ -3,7 +3,7 @@ from requests.exceptions import Timeout
 from string import punctuation
 import cursor
 
-def downloadFile(flurl: str,size: int,path: str,nm: str,ext: str,numoftrls=10,barstyle='BAR',prxs=None) -> None:
+def downloadFile(flurl: str,size: int,path: str,nm: str,ext: str,numoftrls=10,barStyle='BAR',prxs=None) -> None:
     """
     Function to download a binary file from the file url supplied as a string in stream mode. Works with CLI.
     <path> is the loaction where the file with name <nm>+'.'+ext  will be stored.

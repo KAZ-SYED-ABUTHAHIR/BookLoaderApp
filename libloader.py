@@ -47,6 +47,7 @@ def renderCoverImage(url: str = None) -> None:
     if not url:
         return None
     try:
+        time.sleep(0.5)
         with open(r"bin\data\coverURL.txt", "w") as txtfl:
             txtfl.write(url)
     except Exception as e:

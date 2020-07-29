@@ -41,7 +41,8 @@ def startCoverRenderer() -> None:
 def renderCoverImage(url: str = None) -> None:
     """
 		Func to display the cover image.The task of displaying the image from the url is delegated to 
-		the processing micro app through the file
+		the processing micro app through the file. 
+        BUG : There is a racing condition bug due to simultaneous access of overURL.txt by the Python and Java Apps
 	"""
 
     if not url:
@@ -254,9 +255,9 @@ def main():
 
         choice = input('Y/N : ')
         if choice in ['Y', 'y']:
-            sizeinbytes = int(size.split('(')[1].rstrip(')'))
+            #$sizeinbytes = int(size.split('(')[1].rstrip(')'))
             print('\nDownloading: {} \n'.format(name + '.' + extension))
-            dlr.downloadFile(bookurl, sizeinbytes, getUserBasePath(appendPath='Desktop'), name, extension, barStyle='BAR')
+            dlr.downloadFile(fileURL=bookurl, path=getUserBasePath(appendPath='Desktop'), fileName=name, fileExtension=extension, barStyle='BAR')
             ringBell()
         else:
             continue

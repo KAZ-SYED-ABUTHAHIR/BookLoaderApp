@@ -3,9 +3,7 @@ Module to generate a Proxy pool from https://free-proxy-list.net/
 """
 
 import soupipy as spy
-import downloader as dlr
 import random as rnd  
-import wget
 
 def getProxyPool() -> list:
     return [{'http':'http://' + prxy, 'https':'http://' + prxy} for prxy in

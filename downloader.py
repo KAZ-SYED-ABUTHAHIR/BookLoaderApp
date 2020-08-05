@@ -34,6 +34,7 @@ def downloadFile(fileURL,path=None,fileName=None,fileExtension=None,size=None,nu
                 try:
                     size = int(fl.headers['Content-Length'])
                 except Exception as err:
+                    size = None
                     print(f"Error: {err}")
             if fl.ok:
                 with open(path+fileName,'wb') as binContent: #Binary Content of the File Object
@@ -45,7 +46,6 @@ def downloadFile(fileURL,path=None,fileName=None,fileExtension=None,size=None,nu
                                 num_chunks += 1
                                 num_bytes = num_chunks*CHUNK
                                 part_completed = int(100*num_bytes/size)
-
                             if barStyle == 'BAR':
                                 print('\r'+'█'* part_completed + u'\u2591'*(100-part_completed)+' {:.2%}'.format(num_bytes/size),end='\r')
                             elif barStyle == 'TEXT':
@@ -78,10 +78,7 @@ def downloadSimple(url, pathName):
             fl.write(rspns.content)
 
 def main():
-    #https://drive.google.com/uc?export=download&id=1YBKvLugC9uuA67Ya-QwcWPQa40l0XU8b
-
-    pdfLink = "https://drive.google.com/uc?export=download&id=1YBKvLugC9uuA67Ya-QwcWPQa40l0XU8b"
-    downloadFile(pdfLink,"C:\\Users\\KAZ\\Desktop\\")
+    pass
 if __name__ == '__main__':
     main()
 
